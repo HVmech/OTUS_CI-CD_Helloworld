@@ -4,45 +4,43 @@ on:
   push:
     branches: ["main"]
 
-env:
-  ARTIFACT_NAME: helloworld
-  ASSET_NAME: helloworld
-
 jobs:
-  release:
+  build:
     strategy:
       matrix:
         include:
           - os: ubuntu-latest
-            artifact_name: ${{ github.event.repository.name }}
-            asset_name: ${{ github.event.repository.name }}-Linux.deb
+            asset_postfix: -Linux.deb
+            asset_content_type: application/vnd.debian.binary-package
           - os: windows-latest
-            artifact_name: ${{ github.event.repository.name }}.exe
-            asset_name: ${{ github.event.repository.name }}-Windows.exe
+            asset_postfix: -Windows.exe
+            asset_content_type: vnd.microsoft.portable-executable
     runs-on: ${{ matrix.os }}
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           submodules: true
       - run: cmake . -DPATCH_VERSION=${{ github.run_number }} -DWITH_GTEST=ON
       - run: cmake --build .
-      #- run: cmake --build . --target test
-      #- run: cmake --build . --target package
+      - run: cmake --build . --target test
+      - run: cmake --build . --target package
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: v0.0.${{ github.run_number }}
-          release_name: v0.0.${{ github.run_number }}
+          tag_name: ${{ github.run_number }}
+          release_name: Release v0.0.${{ github.run_number }}
           draft: false
           prerelease: false
-      - name: Upload binaries to release
-        uses: svenstaro/upload-release-action@v2
+      - name: Upload Release Asset
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: ${{ matrix.artifact_name }}
-          asset_name: ${{ matrix.asset_name }}
-          tag: v0.0.${{ github.run_number }}
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./helloworld-0.0.${{ github.run_number }}${{ matrix.asset_postfix }}
+          asset_name: helloworld-0.0.${{ github.run_number }}${{ matrix.asset_postfix }}
+          asset_content_type: ${{ matrix.asset_content_type }}
