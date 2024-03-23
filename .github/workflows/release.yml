@@ -28,12 +28,12 @@ jobs:
       - run: cmake --build . --target package
       - name: Create Release
         id: create_release
-        uses: actions/create-release@v1
+        uses: softprops/action-gh-release@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: v0.0.${{ github.run_number }}
-          release_name: Release v0.0.${{ github.run_number }}
+          name: Release v0.0.${{ github.run_number }}
           draft: false
           prerelease: false
       - name: Upload Release Asset
