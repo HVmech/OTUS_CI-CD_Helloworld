@@ -15,7 +15,7 @@ jobs:
             testing_command: cmake --build . --target test
           - os: windows-latest
             asset_postfix: -win64.deb
-            asset_content_type: vnd.microsoft.binary-package
+            asset_content_type: application/vnd.microsoft.binary-package
             testing_command: ctest
     runs-on: ${{ matrix.os }}
     steps:
