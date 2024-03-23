@@ -29,16 +29,16 @@ jobs:
       - run: cmake --build .
       #- run: cmake --build . --target test
       #- run: cmake --build . --target package
-      #- name: Create Release
-      #  id: create_release
-      #  uses: actions/create-release@v1
-      #  env:
-      #    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #  with:
-      #    tag_name: v0.0.${{ github.run_number }}
-      #    release_name: v0.0.${{ github.run_number }}
-      #    draft: false
-      #    prerelease: false
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v0.0.${{ github.run_number }}
+          release_name: v0.0.${{ github.run_number }}
+          draft: false
+          prerelease: false
       - name: Upload binaries to release
         uses: svenstaro/upload-release-action@v2
         with:
